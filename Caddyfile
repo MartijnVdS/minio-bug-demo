@@ -1,0 +1,16 @@
+minio.127.0.0.1.xip.io:443 {
+    log stdout
+    tls /root/certs/dev.crt /root/certs/dev.key {
+        ca_root /root/certs/rootCA.pem
+    }
+
+    reverse_proxy http://minio:9000
+}
+webhook.127.0.0.1.xip.io:443 {
+    log stdout
+    tls /root/certs/dev.crt /root/certs/dev.key {
+        ca_root /root/certs/rootCA.pem
+    }
+
+    reverse_proxy http://webhook:5000
+}

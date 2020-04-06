@@ -1,0 +1,34 @@
+version: "3.6"
+services:
+    caddy:
+        image: "caddy/caddy:latest"
+        volumes:
+            - ./certs:/root/certs
+            - ./Caddyfile:/etc/caddy/Caddyfile
+        ports:
+            - "443:443"
+        depends_on:
+            - "minio"
+        networks:
+            default:
+                aliases:
+                    - "minio.127.0.0.1.xip.io"
+                    - "webhook.127.0.0.1.xip.io"
+    minio:
+        image: "minio/minio"
+        expose:
+            - "9000"
+        command: [ "server", "/data" ]
+        volumes:
+            - ./certs/rootCA.pem:/root/.minio/certs/CAs/public.crt
+        environment:
+            MINIO_ACCESS_KEY: "DevAccessKey"
+            MINIO_SECRET_KEY: "DevSecretKey"
+            MINIO_NOTIFY_WEBHOOK_ENABLE: "on"
+            MINIO_NOTIFY_WEBHOOK_ENDPOINT: "https://webhook.127.0.0.1.xip.io/webhook"
+    webhook:
+        build:
+            context: "."
+            dockerfile: "Dockerfile"
+networks:
+    default:
